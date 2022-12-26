@@ -1,3 +1,6 @@
+"""
+    Módulo principal com as rotas da api
+"""
 from fastapi import FastAPI
 from starlette.responses import RedirectResponse
 
@@ -86,3 +89,7 @@ async def get_declaracao_dividendos_exterior_mensal(
     }
 
     return resultado
+
+@app.get('/atualizar_base_cotacoes/')
+async def atualizar_base_cotacoes():
+    return Cotacao().atualizar_base_cotacoes()

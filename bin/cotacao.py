@@ -1,4 +1,9 @@
+"""
+    Fonte dos dados:
+    https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/
+"""
 import json
+import logging
 import os
 from datetime import date, datetime, timedelta
 
@@ -6,24 +11,32 @@ import pandas as pd
 import requests
 
 diretorio_atual = os.path.dirname(__file__)
+log = logging.getLogger(__name__)
 
 
-class Cotacao(object):
+class Cotacao:
+    """
+    Classe responsável pela coleta e manipulação dos dados das cotações.
+    Métodos:
+        atualizar_base_cotacoes -> verifica os dados salvos e atualiza.
+        get_base_cotacoes -> faz a busca pelos dados no site do banco central.
+        get_cotacao_compra -> retorna a cotação de compra da data especificada.
+        get_cotacao_ultimo_dia_util -> retorna a cotação do último dia útil anterior a data informada.
+    """
     def atualizar_base_cotacoes(self):
         """Verifica a última data do json de dados e atualiza as cotações até a última atual."""
         data_atual_pesquisa = date.today().strftime('%m-%d-%Y')
 
         path = os.path.join(diretorio_atual, '../dados/data_cotacao.json')
-        with open(path, 'r') as f:
-            cotacoes = json.load(f)
-        df = pd.json_normalize(cotacoes)
+        with open(path, 'r', encoding='utf-8') as arquivo_dados:
+            cotacoes = json.load(arquivo_dados)
+        data_frame = pd.json_normalize(cotacoes)
 
-        # Ordenando data pela coluna data
-        df['data'] = pd.to_datetime(df['data'])
-        df.sort_values('data', ascending=False)
-
-        # Coletando a data mais atual nos data
-        ultima_data = df['data'][0].strftime('%m-%d-%Y')
+        # Ordenando data pela coluna data e coletando a data mais atual nos data
+        data_frame['data'] = pd.to_datetime(data_frame['data'])
+        data_ordenada = data_frame.sort_values('data', ascending=False)['data'].head(1)
+        ultima_data = data_ordenada.iloc[0]
+        ultima_data = ultima_data.strftime('%m-%d-%Y')
 
         dict_result = []
 
@@ -37,17 +50,20 @@ class Cotacao(object):
                 data_atual = datetime.strptime(dia_anterior, '%m-%d-%Y')
                 cotacao = self.get_base_cotacao(dia_anterior)
                 if cotacao != {} and cotacao['data'] != ultima_data:
+                    log.info(f'Importando dados do dia: {cotacao["data"]}')
                     dict_result.append(cotacao)
                 if cotacao != {} and cotacao['data'] == ultima_data:
                     break
 
         path = os.path.join(diretorio_atual, '../dados/data_cotacao.json')
-        with open(path, 'r+') as f:
-            data_file = json.load(f)
+        with open(path, 'r+', encoding='utf-8') as arquivo_dados:
+            data_file = json.load(arquivo_dados)
             for item in dict_result:
                 data_file.append(item)
-            f.seek(0)
-            json.dump(data_file, f)
+            arquivo_dados.seek(0)
+            json.dump(data_file, arquivo_dados)
+
+        return dict_result
 
     @staticmethod
     def get_base_cotacao(data):
@@ -66,8 +82,9 @@ class Cotacao(object):
             f'dataInicial=@dataInicial,dataFinalCotacao=@dataFinalCotacao)'
             f'?@dataInicial=%27{data}%27&@dataFinalCotacao=%27{data}%27'
         )
-        r = requests.get(url)
-        data_result = r.json()
+        log.info('Acessando base do Banco central.')
+        response = requests.get(url, timeout=30)
+        data_result = response.json()
         cotacao = {}
 
         if len(data_result['value']) > 0:
@@ -99,18 +116,19 @@ class Cotacao(object):
             }
         """
         path = os.path.join(diretorio_atual, '../dados/data_cotacao.json')
-        with open(path, 'r') as f:
-            cotacoes = json.load(f)
-        df = pd.json_normalize(cotacoes)
+        with open(path, 'r', encoding='utf-8') as arquivo_dados:
+            cotacoes = json.load(arquivo_dados)
+        data_frame = pd.json_normalize(cotacoes)
 
         # Procurando os dados de arcodo com a data
-        data_result = df.loc[(df['data'] == data)]
+        data_result = data_frame.loc[(data_frame['data'] == data)]
 
         # Capturando o valor da cotação
         cotacao_periodo = 0
         if len(data_result['cotacao_compra']) > 0:
             cotacao_periodo = data_result['cotacao_compra'].values[0]
 
+        log.info('Criando dicionário com dados da cotação.')
         resultado = {
             'data': datetime.strptime(data, '%m-%d-%Y'),
             'cotacao': cotacao_periodo,
@@ -146,6 +164,7 @@ class Cotacao(object):
         else:
             resultado_cotacao = self.get_cotacao_compra(data)['cotacao']
 
+        log.info('Criando dicionário com dados da cotação.')
         resultado = {
             'data': datetime.strptime(data, '%m-%d-%Y'),
             'cotacao': resultado_cotacao,

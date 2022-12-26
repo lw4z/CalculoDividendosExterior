@@ -1,7 +1,8 @@
 import pytest
+import logging
 
 from bin.calculo_declaracao import CalculoDeclaracao
-
+log = logging.getLogger(__name__)
 
 @pytest.fixture
 def calculo_declaracao():
@@ -27,3 +28,5 @@ class TestCalculoDeclaracao:
         assert resultado['valor_bruto'] == '1.09'
         assert resultado['valor_imposto'] == '0.34'
         assert resultado['valor_liquido'] == '0.74'
+
+        log.info('Cálculo da declaração verificada com sucesso!')

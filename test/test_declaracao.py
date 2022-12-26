@@ -1,8 +1,10 @@
 import pytest
+import logging
 
 from bin.calculo_declaracao import CalculoDeclaracao
 from bin.cotacao import Cotacao
 from bin.periodo import Periodo
+log = logging.getLogger(__name__)
 
 
 @pytest.fixture
@@ -40,4 +42,4 @@ class TestDeclaracaoDividendosExterior:
         cotacao_ultimo_dia_util = cotacao.get_cotacao_ultimo_dia_util(primeira_quinzena)
         resultado_declaracao = calculo.calcular_declaracao_mensal(
             cotacao_ultimo_dia_util['cotacao'], valor_bruto, valor_imposto)
-        print(resultado_declaracao)
+        log.info(str(resultado_declaracao))

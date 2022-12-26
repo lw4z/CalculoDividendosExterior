@@ -1,8 +1,16 @@
-class Periodo(object):
+"""
+    O cálculo da declaração é baseado na cotação do último dia útil da primeira quinzena do mês anterior ao recebimento
+    dos dividendos.
+"""
+class Periodo:
+    """Classe responsável por repassar a primeira quinzena do mês anterior."""
     @staticmethod
-    def get_data(ano, mes):
+    def get_data(
+            ano,
+            mes
+    ):
         """
-            Retorna o dia 15 do mês anterior ao período informado
+            Retorna o dia 15 do mês anterior ao período informado.
         :param ano: int
         :param mes: int
         :return:
