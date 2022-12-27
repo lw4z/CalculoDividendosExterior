@@ -27,6 +27,6 @@ class TestCalculoDeclaracao:
         resultado = calculo_declaracao.calcular_declaracao_individual(codigo, cotacao, valor_bruto, valor_imposto)
         assert resultado['valor_bruto'] == '1.09'
         assert resultado['valor_imposto'] == '0.34'
-        assert resultado['valor_liquido'] == '0.74'
+        assert resultado['valor_liquido'] == '0.75'
 
         log.info('Cálculo da declaração verificada com sucesso!')

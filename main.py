@@ -50,14 +50,14 @@ async def get_declaracao_dividendos_exterior_individual(
         valor_imposto: float,
         codigo: str
 ):
-    """Retorna os dados da declaração de dividendos no exterior."""
+    """Retorna os dados da declaração de dividendos no exterior por ticket de ativo."""
     # Gera data da primeira quinzena
     primeira_quinzena = Periodo().get_data(ano, mes)
     # Captura cotação do último dia util anterior ao dia 15
     cotacao_ultimo_dia_util = Cotacao().get_cotacao_ultimo_dia_util(primeira_quinzena)
     # Retorna o resultado dos dados para declaração dos dividendos no exterior
     resultado_declaracao = CalculoDeclaracao().calcular_declaracao_individual(
-        codigo, cotacao_ultimo_dia_util['cotacao'], valor_bruto, valor_imposto)
+        codigo.upper(), cotacao_ultimo_dia_util['cotacao'], valor_bruto, valor_imposto)
 
     resultado = {
         "dia_cotacao": cotacao_ultimo_dia_util,
@@ -74,7 +74,7 @@ async def get_declaracao_dividendos_exterior_mensal(
         valor_bruto: float,
         valor_imposto: float
 ):
-    """Retorna os dados da declaração de dividendos no exterior."""
+    """Retorna os dados da declaração de dividendos mensal no exterior."""
     # Captura segunda sexta-feira do mês anterior
     primeira_quinzena = Periodo().get_data(ano, mes)
     # Captura cotação do último dia util anterior ao dia 15

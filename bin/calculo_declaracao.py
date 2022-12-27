@@ -10,9 +10,9 @@ class CalculoDeclaracao(object):
     ):
         """Realizar o cálculo da declaração para dados menais."""
         locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
-        recebido_reais = valor_bruto * float(cotacao)
-        pago_reais = valor_imposto * cotacao
-        valor_liquido = recebido_reais - pago_reais
+        recebido_reais = round(valor_bruto * float(cotacao), 2)
+        pago_reais = round(valor_imposto * cotacao, 2)
+        valor_liquido = round(recebido_reais - pago_reais, 2)
 
         # Dados convertidos para formato monetário
         cotacao_real = str(cotacao).replace('.', ',')
