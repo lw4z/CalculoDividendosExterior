@@ -20,3 +20,13 @@ $ uvicorn main:app --reload
 # Access link
 
 http://127.0.0.1:8000
+
+# MAKEFILE
+## To run
+$ make start
+
+## To test
+$ make full_test
+
+## To install setup libs
+$ make setup
