@@ -1,6 +1,7 @@
 """
     Módulo principal com as rotas da api
 """
+from datetime import datetime
 from fastapi import FastAPI
 from starlette.responses import RedirectResponse
 
@@ -21,24 +22,30 @@ def get_docs():
 @app.get('/cotacao_por_dia/')
 def get_cotacao_por_dia(
         ano: int,
-        mes: str,
+        mes: int,
         dia: int
-):
+) -> dict:
     """Retorna a cotação da data informada."""
     data = f'{mes}-{dia}-{ano}'
-    # Retorna a cotação da data informada
-    return Cotacao().get_cotacao_compra(data)
+    # Retorna as cotações da data informada
+    result = {
+        'data': datetime.strptime(data, '%m-%d-%Y'),
+        'cotacao_compra': Cotacao().get_cotacao_compra(data)['cotacao'],
+        'cotacao_venda': Cotacao().get_cotacao_venda(data)['cotacao']
+    }
+    return result
 
 
 @app.get('/cotacao_busca_dia_util/')
 def get_cotacao_busca_dia_util(
         ano: int,
-        mes: str,
+        mes: int,
         dia: int
-):
+) -> dict:
     """Retorna a cotação buscando o último dia util anterior a data informada."""
-    data = f'{mes}-{dia}-{ano}'
+    data = Periodo().padronizar_data(dia, mes, ano)
     # Retorna a cotação do último dia útil anterior ao dia
+
     return Cotacao().get_cotacao_ultimo_dia_util(data)
 
 
@@ -49,7 +56,7 @@ async def get_declaracao_dividendos_exterior_individual(
         valor_bruto: float,
         valor_imposto: float,
         codigo: str
-):
+) -> dict:
     """Retorna os dados da declaração de dividendos no exterior por ticket de ativo."""
     # Gera data da primeira quinzena
     primeira_quinzena = Periodo().get_data(ano, mes)
@@ -73,7 +80,7 @@ async def get_declaracao_dividendos_exterior_mensal(
         mes: int,
         valor_bruto: float,
         valor_imposto: float
-):
+) -> dict:
     """Retorna os dados da declaração de dividendos mensal no exterior."""
     # Captura segunda sexta-feira do mês anterior
     primeira_quinzena = Periodo().get_data(ano, mes)
@@ -91,5 +98,6 @@ async def get_declaracao_dividendos_exterior_mensal(
     return resultado
 
 @app.get('/atualizar_base_cotacoes/')
-async def atualizar_base_cotacoes():
+async def atualizar_base_cotacoes() -> dict:
+    """Retorna a lista de datas que foram acrescentadas na base."""
     return Cotacao().atualizar_base_cotacoes()

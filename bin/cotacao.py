@@ -1,6 +1,7 @@
 """
     Fonte dos dados:
     https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/
+    O formato da data utilizado na base é mês-dia-ano.
 """
 import json
 import logging
@@ -25,18 +26,20 @@ class Cotacao:
     """
     def atualizar_base_cotacoes(self):
         """Verifica a última data do json de dados e atualiza as cotações até a última atual."""
+        # Convertendo a data de hoje para string
         data_atual_pesquisa = date.today().strftime('%m-%d-%Y')
 
+        # Abrindo arquivo de dados das cotações em um dataframe
         path = os.path.join(diretorio_atual, '../dados/data_cotacao.json')
         with open(path, 'r', encoding='utf-8') as arquivo_dados:
             cotacoes = json.load(arquivo_dados)
         data_frame = pd.json_normalize(cotacoes)
 
-        # Ordenando data pela coluna data e coletando a data mais atual nos data
+        # Ordenando data pela coluna data e coletando a data mais atual nos dados
         data_frame['data'] = pd.to_datetime(data_frame['data'])
         data_ordenada = data_frame.sort_values('data', ascending=False)['data'].head(1)
-        ultima_data = data_ordenada.iloc[0]
-        ultima_data = ultima_data.strftime('%m-%d-%Y')
+        primeira_data_ordenada = data_ordenada.iloc[0]
+        ultima_data = primeira_data_ordenada.strftime('%m-%d-%Y')
 
         dict_result = []
 
@@ -45,21 +48,27 @@ class Cotacao:
             while True:
                 if self.get_base_cotacao(data_atual_pesquisa) == {}:
                     pass
+                # Subtrair um dia do último dia util da base
                 dia_anterior = data_atual - timedelta(days=1)
+                # Convertendo o formato de data para string
                 dia_anterior = dia_anterior.strftime('%m-%d-%Y')
+                # Convertendo o formato de string para data
                 data_atual = datetime.strptime(dia_anterior, '%m-%d-%Y')
+                # Coletando cotação do dia anterior
                 cotacao = self.get_base_cotacao(dia_anterior)
+                # Verificando se a cotação é nula e se é diferente da última data válida
                 if cotacao != {} and cotacao['data'] != ultima_data:
                     log.info(f'Importando dados do dia: {cotacao["data"]}')
                     dict_result.append(cotacao)
+                # Verificando se a cotação é nula e se é igual ao dia atual
                 if cotacao != {} and cotacao['data'] == ultima_data:
                     break
 
+        # Adicionando os novos dados coletados na base de dados das cotações
         path = os.path.join(diretorio_atual, '../dados/data_cotacao.json')
         with open(path, 'r+', encoding='utf-8') as arquivo_dados:
             data_file = json.load(arquivo_dados)
-            for item in dict_result:
-                data_file.append(item)
+            [data_file.append(item) for item in dict_result]
             arquivo_dados.seek(0)
             json.dump(data_file, arquivo_dados)
 
@@ -87,7 +96,9 @@ class Cotacao:
         data_result = response.json()
         cotacao = {}
 
+        # Verificando se houve retorno da data especificada
         if len(data_result['value']) > 0:
+            # Criando dicionário com os resultados
             for cotacao in data_result['value']:
                 date_time = datetime.strptime(
                     cotacao['dataHoraCotacao'], '%Y-%m-%d %H:%M:%S.%f'
@@ -115,6 +126,7 @@ class Cotacao:
                 'cotacao': dict
             }
         """
+        # Abrindo arquivo de dados das cotações
         path = os.path.join(diretorio_atual, '../dados/data_cotacao.json')
         with open(path, 'r', encoding='utf-8') as arquivo_dados:
             cotacoes = json.load(arquivo_dados)
@@ -123,15 +135,48 @@ class Cotacao:
         # Procurando os dados de arcodo com a data
         data_result = data_frame.loc[(data_frame['data'] == data)]
 
-        # Capturando o valor da cotação
+        # Capturando o valor da cotação de compra
         cotacao_periodo = 0
         if len(data_result['cotacao_compra']) > 0:
             cotacao_periodo = data_result['cotacao_compra'].values[0]
 
-        log.info('Criando dicionário com dados da cotação.')
+        log.info('Criando dicionário com dados da cotação de compra.')
         resultado = {
             'data': datetime.strptime(data, '%m-%d-%Y'),
-            'cotacao': cotacao_periodo,
+            'cotacao': cotacao_periodo
+        }
+
+        return resultado
+
+    @staticmethod
+    def get_cotacao_venda(data):
+        """
+            Retorna a cotação a partir da data informada.
+        :param data: string
+        :return:
+            {
+                'data': datetime,
+                'cotacao': dict
+            }
+        """
+        # Abrindo arquivo de dados das cotações
+        path = os.path.join(diretorio_atual, '../dados/data_cotacao.json')
+        with open(path, 'r', encoding='utf-8') as arquivo_dados:
+            cotacoes = json.load(arquivo_dados)
+        data_frame = pd.json_normalize(cotacoes)
+
+        # Procurando os dados de arcodo com a data
+        data_result = data_frame.loc[(data_frame['data'] == data)]
+
+        # Capturando o valor da cotação de venda
+        cotacao_periodo = 0
+        if len(data_result['cotacao_venda']) > 0:
+            cotacao_periodo = data_result['cotacao_venda'].values[0]
+
+        log.info('Criando dicionário com dados da cotação de venda.')
+        resultado = {
+            'data': datetime.strptime(data, '%m-%d-%Y'),
+            'cotacao': cotacao_periodo
         }
 
         return resultado
@@ -149,24 +194,23 @@ class Cotacao:
         dia_util_inicial = datetime.strptime(data, '%m-%d-%Y')
         resultado_cotacao = 0
 
+        # Verificando se há cotação na data especificada
         if self.get_cotacao_compra(data)['cotacao'] == 0:
             while resultado_cotacao == 0:
-                # if resultado_cotacao is not None:
-                #     break
+                # Subtrair um dia do último dia util da base
                 dia_anterior = dia_util_inicial - timedelta(days=1)
+                # Convertendo o formato da data
                 dia_anterior = dia_anterior.strftime('%m-%d-%Y')
+                # Colocando o dia anterior no topo da pilha
                 dia_util_inicial = datetime.strptime(dia_anterior, '%m-%d-%Y')
-                resultado_cotacao = self.get_cotacao_compra(dia_anterior)[
-                    'cotacao'
-                ]
-                print(dia_anterior)
-                print(resultado_cotacao)
+                # Coletando cotação do dia anterior
+                resultado_cotacao = self.get_cotacao_compra(dia_anterior)['cotacao']
         else:
             resultado_cotacao = self.get_cotacao_compra(data)['cotacao']
 
         log.info('Criando dicionário com dados da cotação.')
         resultado = {
-            'data': datetime.strptime(data, '%m-%d-%Y'),
+            'data': datetime.strptime(dia_anterior, '%m-%d-%Y'),
             'cotacao': resultado_cotacao,
         }
 
