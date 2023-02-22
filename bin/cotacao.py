@@ -26,8 +26,8 @@ class Cotacao:
     """
     def atualizar_base_cotacoes(self):
         """Verifica a última data do json de dados e atualiza as cotações até a última atual."""
-        # Convertendo a data de hoje para string
-        data_atual_pesquisa = date.today().strftime('%m-%d-%Y')
+        # Convertendo a data de amanhã para string
+        data_atual_pesquisa = (date.today() + timedelta(days=1)).strftime('%m-%d-%Y')
 
         # Abrindo arquivo de dados das cotações em um dataframe
         path = os.path.join(diretorio_atual, '../dados/data_cotacao.json')
@@ -46,6 +46,7 @@ class Cotacao:
         if data_atual_pesquisa != ultima_data:
             data_atual = datetime.strptime(data_atual_pesquisa, '%m-%d-%Y')
             while True:
+                # Para iniciar a pesquisa é necessário passar a data do amanhã para ele decrementar a datas
                 if self.get_base_cotacao(data_atual_pesquisa) == {}:
                     pass
                 # Subtrair um dia do último dia util da base
@@ -63,7 +64,6 @@ class Cotacao:
                 # Verificando se a cotação é nula e se é igual ao dia atual
                 if cotacao != {} and cotacao['data'] == ultima_data:
                     break
-
         # Adicionando os novos dados coletados na base de dados das cotações
         path = os.path.join(diretorio_atual, '../dados/data_cotacao.json')
         with open(path, 'r+', encoding='utf-8') as arquivo_dados:

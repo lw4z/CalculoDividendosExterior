@@ -9,6 +9,7 @@ st.set_page_config(
 )
 
 st.header('📅 Cálculo da declaração individual')
+st.markdown('##### Indique os dividendos recebidos por um ativo')
 
 # Barra lateral esquerda
 st.sidebar.markdown('## Configurações:')
@@ -76,21 +77,24 @@ if cotacao_button:
         date_str = datetime.datetime.strptime(result.json().get('dia_cotacao')['data'], '%Y-%m-%dT%H:%M:%S')
         date = date_str.strftime('%d/%m/%Y')
 
-        st.text('Detalhes:')
+        st.markdown('**Detalhes:**')
         texto1 = f'''
-            Cotação obtida do dia: **{date}**\n
+            Último dia útil da primeira quinzena do mês anterior: **{date}**\n
+            Cotação do dia: **R$ {result.json().get('detalhes')['cotacao_periodo']}**\n
             Valor bruto recebido: **{result.json().get('detalhes')['valor_bruto_reais']}**\n
             Valor do imposto pago: **{result.json().get('detalhes')['valor_imposto_reais']}**\n
             Valor líquido recebido: **{result.json().get('detalhes')['valor_liquido_reais']}**
         '''
         st.warning(texto1)
 
-        st.text('Modelo de mensagem de rendimentos:')
+        st.markdown('**Modelo de mensagem de rendimentos para o Carnê Leão:**')
 
         mensagem_rendimentos = re.sub(r'[$]', r'\$', result.json().get('detalhes')['rendimentos_mensagem_exemplo'])
         st.success(mensagem_rendimentos)
-        st.text('Modelo de mensagem de pagamento de imposto:')
+        st.info(f'''Valor a ser declarado **{result.json().get('detalhes')['valor_bruto_reais']}**''')
+        st.markdown('**Modelo de mensagem de pagamento de imposto para o Carnê Leão:**')
         mensagem_imposto = re.sub(r'[$]', r'\$', result.json().get('detalhes')['pagamentos_mensagem_exemplo'])
         st.success(mensagem_imposto)
+        st.info(f'''Valor a ser declarado **{result.json().get('detalhes')['valor_imposto_reais']}**''')
     else:
         st.warning("Por favor, preencha todos os campos para prosseguir!")

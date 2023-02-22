@@ -72,7 +72,7 @@ async def get_declaracao_dividendos_exterior_individual(
     resultado_declaracao = CalculoDeclaracao().calcular_declaracao_individual(
         tipo_ativo,
         codigo.upper(),
-        cotacao_ultimo_dia_util['cotacao'],
+        cotacao_ultimo_dia_util['cotacao_compra'],
         valor_bruto, valor_imposto
     )
 

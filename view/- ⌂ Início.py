@@ -49,6 +49,9 @@ Para utilizar a aplicação Carnê Leão não é necessário baixar o programa o
 [Fonte](https://ajuda.bancointer.com.br/pt-BR/articles/5952518-como-faco-declaracao-de-dividendos-recebidos-no-exterior)
 
 *_dados da base a partir do dia 01-12-2021_
+
+_Fonte dos dados:
+    https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/_
 """
 st.markdown(texto)
 

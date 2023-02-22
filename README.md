@@ -10,6 +10,8 @@ Para utilizar a aplicação Carnê Leão não é necessário baixar o programa o
 
 *_dados da base a partir do dia 01-12-2021_
 
+_Fonte dos dados:
+    https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/_
 
 # Install requiriments
 
@@ -25,7 +27,7 @@ http://127.0.0.1:8000
 
 # View access link
 
-http://127.0.0.1:8501/
+http://127.0.0.1:8501
 
 # MAKEFILE
 ## To run

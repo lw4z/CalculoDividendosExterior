@@ -9,6 +9,7 @@ st.set_page_config(
     page_icon='🗓️',
 )
 st.header('🗓️ Cálculo da declaração mensal️')
+st.markdown('##### Indique o total dos dividendos recebidos durante todo o mês')
 
 # Barra lateral esquerda
 st.sidebar.markdown('## Configurações:')
@@ -28,24 +29,26 @@ if atualizar_button:
             st.error('Ocorreu um erro durante a atualização da base!')
 
 # Entradas de informações
-data_cotacao = st.date_input(
-    'Selecione o mês do pagamento: *',
-    help='Selecione qualquer data do em que recebeu os dividendos',
-    min_value=datetime.datetime(2021, 12, 12),
-    max_value=datetime.datetime.today(),
-)
+
 
 col1, col2 = st.columns(2)
 with col1:
     valor_bruto = st.number_input('Digite o valor bruto dos dividendos recebidos: *',
-                            help='O valor bruto é aquele que você recebe em dólares indicado pela sua corretora',
-                              min_value=0.0)
+                                  help='O valor bruto é aquele que você recebe em dólares indicado pela sua corretora',
+                                  min_value=0.0)
+    data_cotacao = st.date_input(
+        'Selecione o mês do pagamento: *',
+        help='Selecione qualquer data do em que recebeu os dividendos',
+        min_value=datetime.datetime(2021, 12, 12),
+        max_value=datetime.datetime.today(),
+    )
+
 with col2:
     valor_imposto = st.number_input('Digite o valor do imposto pago: *',
                               help='O valor do imposto é aquele que é abatido após o valor bruto, '
                                    'esse valor também é indicado pela sua corretora',
                                 min_value=0.0)
-
+    st.empty()
 # Dados para a chamada da api
 ano = data_cotacao.year
 mes = data_cotacao.strftime('%m')
@@ -70,7 +73,8 @@ if cotacao_button:
 
         st.text('Detalhes:')
         texto1 = f'''
-            Cotação obtida do dia: **{date}**\n
+            Último dia útil da primeira quinzena do mês anterior: **{date}**\n
+            Cotação do dia: **R$ {result.json().get('detalhes')['cotacao_periodo']}**\n
             Valor bruto recebido: **{result.json().get('detalhes')['valor_bruto_reais']}**\n
             Valor do imposto pago: **{result.json().get('detalhes')['valor_imposto_reais']}**\n
             Valor líquido recebido: **{result.json().get('detalhes')['valor_liquido_reais']}**
