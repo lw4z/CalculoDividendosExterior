@@ -8,6 +8,8 @@ Para utilizar a aplicação Carnê Leão não é necessário baixar o programa o
 
 [Fonte](https://ajuda.bancointer.com.br/pt-BR/articles/5952518-como-faco-declaracao-de-dividendos-recebidos-no-exterior)
 
+*_dados da base a partir do dia 01-12-2021_
+
 
 # Install requiriments
 
@@ -17,9 +19,13 @@ $ pip install -r requiriments.txt
 
 $ uvicorn main:app --reload
 
-# Access link
+# API access link
 
 http://127.0.0.1:8000
+
+# View access link
+
+http://127.0.0.1:8501/
 
 # MAKEFILE
 ## To run

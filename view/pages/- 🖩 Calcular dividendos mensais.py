@@ -28,19 +28,23 @@ if atualizar_button:
             st.error('Ocorreu um erro durante a atualização da base!')
 
 # Entradas de informações
-valor_bruto = st.number_input('Digite o valor bruto dos dividendos recebidos: *',
-                            help='O valor bruto é aquele que você recebe em dólares indicado pela sua corretora',
-                              min_value=0.0)
-valor_imposto = st.number_input('Digite o valor do imposto pago: *',
-                              help='O valor do imposto é aquele que é abatido após o valor bruto, '
-                                   'esse valor também é indicado pela sua corretora',
-                                min_value=0.0)
 data_cotacao = st.date_input(
     'Selecione o mês do pagamento: *',
     help='Selecione qualquer data do em que recebeu os dividendos',
     min_value=datetime.datetime(2021, 12, 12),
     max_value=datetime.datetime.today(),
 )
+
+col1, col2 = st.columns(2)
+with col1:
+    valor_bruto = st.number_input('Digite o valor bruto dos dividendos recebidos: *',
+                            help='O valor bruto é aquele que você recebe em dólares indicado pela sua corretora',
+                              min_value=0.0)
+with col2:
+    valor_imposto = st.number_input('Digite o valor do imposto pago: *',
+                              help='O valor do imposto é aquele que é abatido após o valor bruto, '
+                                   'esse valor também é indicado pela sua corretora',
+                                min_value=0.0)
 
 # Dados para a chamada da api
 ano = data_cotacao.year

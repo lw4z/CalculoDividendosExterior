@@ -10,6 +10,7 @@ import os
 import pandas as pd
 import requests
 import streamlit as st
+from jsonschema._validators import required
 
 diretorio_atual = os.path.dirname(__file__)
 
@@ -46,6 +47,8 @@ Ao receber dividendos pagos no exterior por Ações, REITs, ADRs e  ETFs é nece
 Para utilizar a aplicação Carnê Leão não é necessário baixar o programa ou aplicativo para celular. Acesse o Centro Virtual de Atendimento (Portal e-CAC), disponível no site da Receita Federal, selecione o serviço “Meu Imposto de Renda” > "Declarações" > "Acessar Carnê-Leão".
 
 [Fonte](https://ajuda.bancointer.com.br/pt-BR/articles/5952518-como-faco-declaracao-de-dividendos-recebidos-no-exterior)
+
+*_dados da base a partir do dia 01-12-2021_
 """
 st.markdown(texto)
 
@@ -68,7 +71,7 @@ cotacao_compra = result.json().get('cotacao_compra')
 cotacao_venda = result.json().get('cotacao_venda')
 
 # Exibição da última cotação
-st.subheader(f'💲 Última cotação: **{date_cotacao}**')
+st.subheader(f'💵 Última cotação: **{date_cotacao}**')
 if cotacao_compra > 0:
     texto = f'''
         Dólar compra: **R&#36; {cotacao_compra}**\n
@@ -114,7 +117,7 @@ if cotacao_button:
             Dólar venda: **R&#36; {cotacao_venda}**'''
         st.success(texto)
     else:
-        st.warning("Não há dados para esta data! Entre com uma data referente a um dia útil!")
+        st.warning("Nenhuma informação encontrada nesta data!")
 
 
 # Carregando dados da base de cotações
@@ -128,5 +131,5 @@ data_frame['data'] = pd.to_datetime(data_frame['data'])
 data_ordenada = data_frame.sort_values('data', ascending=False)
 
 # Apresentando gráfico das cotações
-st.subheader('📊 Histórico de cotações do dólar:', )
+st.subheader('🗠 Histórico de cotações do dólar:', )
 st.line_chart(data_ordenada, x='data', y='cotacao_compra')
