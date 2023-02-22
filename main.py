@@ -3,6 +3,7 @@
 """
 from datetime import datetime
 from fastapi import FastAPI
+from fastapi import Query
 from starlette.responses import RedirectResponse
 
 from bin.calculo_declaracao import CalculoDeclaracao
@@ -51,11 +52,12 @@ def get_cotacao_busca_dia_util(
 
 @app.get('/declaracao_dividendos_exterior_individual/')
 async def get_declaracao_dividendos_exterior_individual(
-        ano: int,
-        mes: int,
-        valor_bruto: float,
-        valor_imposto: float,
-        codigo: str
+        tipo_ativo: str = Query(alias='tipo_ativo', description='ETF ou Stock'),
+        ano: int = Query(alias='ano', description='Ano em que recebeu o pagamento'),
+        mes: int = Query(alias='mes', description='Mês em que recebeu o pagamento'),
+        valor_bruto: float = Query(alias='valor_bruto', description='Valor bruto recebido'),
+        valor_imposto: float = Query(alias='valor_imposto', description='Valor do Imposto pago'),
+        codigo: str = Query(alias='codigo', description='Código do ativo individual, ex.: VOO, AAPL')
 ) -> dict:
     """Retorna os dados da declaração de dividendos no exterior por ticket de ativo."""
     # Gera data da primeira quinzena
@@ -64,7 +66,11 @@ async def get_declaracao_dividendos_exterior_individual(
     cotacao_ultimo_dia_util = Cotacao().get_cotacao_ultimo_dia_util(primeira_quinzena)
     # Retorna o resultado dos dados para declaração dos dividendos no exterior
     resultado_declaracao = CalculoDeclaracao().calcular_declaracao_individual(
-        codigo.upper(), cotacao_ultimo_dia_util['cotacao'], valor_bruto, valor_imposto)
+        tipo_ativo,
+        codigo.upper(),
+        cotacao_ultimo_dia_util['cotacao'],
+        valor_bruto, valor_imposto
+    )
 
     resultado = {
         "dia_cotacao": cotacao_ultimo_dia_util,
