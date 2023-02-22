@@ -64,15 +64,58 @@ result = requests.get(
 
 date_str = datetime.datetime.strptime(result.json().get('data'), '%Y-%m-%dT%H:%M:%S')
 date_cotacao = date_str.strftime('%d/%m/%Y')
-cotacao = result.json().get('cotacao')
+cotacao_compra = result.json().get('cotacao_compra')
+cotacao_venda = result.json().get('cotacao_venda')
 
 # Exibição da última cotação
-st.subheader(f'📊 Última cotação: **{date_cotacao}**')
-if cotacao > 0:
+st.subheader(f'💲 Última cotação: **{date_cotacao}**')
+if cotacao_compra > 0:
     texto = f'''
-        Dolar em reais: **R&#36; {cotacao:.2f}**
-        '''
-    st.success(texto)
+        Dólar compra: **R&#36; {cotacao_compra}**\n
+        Dólar venda: **R&#36; {cotacao_venda}**'''
+    st.info(texto)
+
+# Verificando cotações por dia
+st.subheader('📈 Verificando a cotação por dia')
+data_cotacao = st.date_input(
+    'Selecione uma data:',
+    help='Selecione apenas dias úteis',
+    min_value=datetime.datetime(2021, 12, 12),
+    max_value=datetime.datetime.today(),
+)
+
+# Dados para a chamada da api
+ano = data_cotacao.year
+mes = data_cotacao.strftime('%m')
+dia = data_cotacao.strftime('%d')
+data_get = {'ano': ano, 'mes': mes, 'dia': dia}
+cotacao_button = st.button('Pesquisar')
+
+if cotacao_button:
+    result = requests.get(
+        url = 'http://127.0.0.1:8000/cotacao_por_dia/',
+        params = data_get
+    )
+    # print(result.json().get('data'))
+    date_str = datetime.datetime.strptime(result.json().get('data'), '%Y-%m-%dT%H:%M:%S')
+    date = date_str.strftime('%d/%m/%Y')
+    # print(data)
+    cotacao_compra = result.json().get('cotacao_compra')
+    cotacao_venda = result.json().get('cotacao_venda')
+    if cotacao_compra > 0:
+        # st.write({
+        #     'data': date,
+        #     'cotação compra': f'R$ {cotacao_compra}',
+        #     'cotação venda': f'R$ {cotacao_venda}'
+        # })
+        texto = f'''
+            Dia **{date}**\n
+            Dólar compra: **R&#36; {cotacao_compra}**\n
+            Dólar venda: **R&#36; {cotacao_venda}**'''
+        st.success(texto)
+    else:
+        st.warning("Não há dados para esta data! Entre com uma data referente a um dia útil!")
+
 
 # Carregando dados da base de cotações
 path = os.path.join(diretorio_atual, '../dados/data_cotacao.json')
@@ -85,5 +128,5 @@ data_frame['data'] = pd.to_datetime(data_frame['data'])
 data_ordenada = data_frame.sort_values('data', ascending=False)
 
 # Apresentando gráfico das cotações
-st.write('Histórico de cotações do dolar:', )
+st.subheader('📊 Histórico de cotações do dólar:', )
 st.line_chart(data_ordenada, x='data', y='cotacao_compra')

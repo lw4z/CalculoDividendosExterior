@@ -32,12 +32,14 @@ tipo_ativo = st.radio('Selecione o tipo de ativo:',
                       ('ETF', 'Stock'),
                       help='Escolha o tipo de ativo do qual você recebeu os dividendos',
                       horizontal=True)
-codigo_ativo = st.text_input('Digite o código do ativo: *', help='ETF, Stock, etc.')
-valor_bruto = st.text_input('Digite o valor bruto dos dividendos recebidos: *',
-                            help='O valor bruto é aquele que você recebe em dólares indicado pela sua corretora')
-valor_imposto = st.text_input('Digite o valor do imposto pago: *',
+codigo_ativo = st.text_input('Digite o código do ativo: *', help='ETF, Stock, etc.', placeholder='ex.: VOO')
+valor_bruto = st.number_input('Digite o valor bruto dos dividendos recebidos: *',
+                            help='O valor bruto é aquele que você recebe em dólares indicado pela sua corretora',
+                              min_value=0.0)
+valor_imposto = st.number_input('Digite o valor do imposto pago: *',
                               help='O valor do imposto é aquele que é abatido após o valor bruto, '
-                                   'esse valor também é indicado pela sua corretora')
+                                   'esse valor também é indicado pela sua corretora',
+                                min_value=0.0)
 data_cotacao = st.date_input(
     'Selecione a data do pagamento: *',
     help='Selecione a data em que recebeu os dividendos',

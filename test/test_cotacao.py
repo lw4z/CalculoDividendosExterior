@@ -42,7 +42,7 @@ class TestCotacao:
     ):
         """Verifica a cotação buscando o último dia útil anterior a data informada."""
         resultado = cotacao.get_cotacao_ultimo_dia_util(data)
-        assert resultado['cotacao'] == 5.6426
+        assert resultado['cotacao_compra'] == 5.6426
         log.info('Cotação por último dia útil verificada com sucesso!')
 
     @pytest.mark.skip

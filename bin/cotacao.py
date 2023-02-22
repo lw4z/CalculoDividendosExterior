@@ -192,11 +192,13 @@ class Cotacao:
             }
         """
         dia_util_inicial = datetime.strptime(data, '%m-%d-%Y')
-        resultado_cotacao = 0
+        dia_anterior = dia_util_inicial.strftime('%m-%d-%Y')
+        resultado_cotacao_compra = 0
+        resultado_cotacao_venda = 0
 
         # Verificando se há cotação na data especificada
         if self.get_cotacao_compra(data)['cotacao'] == 0:
-            while resultado_cotacao == 0:
+            while resultado_cotacao_compra == 0:
                 # Subtrair um dia do último dia util da base
                 dia_anterior = dia_util_inicial - timedelta(days=1)
                 # Convertendo o formato da data
@@ -204,14 +206,17 @@ class Cotacao:
                 # Colocando o dia anterior no topo da pilha
                 dia_util_inicial = datetime.strptime(dia_anterior, '%m-%d-%Y')
                 # Coletando cotação do dia anterior
-                resultado_cotacao = self.get_cotacao_compra(dia_anterior)['cotacao']
+                resultado_cotacao_compra = self.get_cotacao_compra(dia_anterior)['cotacao']
+                resultado_cotacao_venda = self.get_cotacao_venda(dia_anterior)['cotacao']
         else:
-            resultado_cotacao = self.get_cotacao_compra(data)['cotacao']
+            resultado_cotacao_compra = self.get_cotacao_compra(data)['cotacao']
+            resultado_cotacao_venda = self.get_cotacao_venda(data)['cotacao']
 
         log.info('Criando dicionário com dados da cotação.')
         resultado = {
             'data': datetime.strptime(dia_anterior, '%m-%d-%Y'),
-            'cotacao': resultado_cotacao,
+            'cotacao_compra': resultado_cotacao_compra,
+            'cotacao_venda': resultado_cotacao_venda,
         }
 
         return resultado

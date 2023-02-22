@@ -29,10 +29,12 @@ def get_cotacao_por_dia(
     """Retorna a cotação da data informada."""
     data = f'{mes}-{dia}-{ano}'
     # Retorna as cotações da data informada
+    data_entrada = datetime.strptime(data, '%m-%d-%Y')
+    data_convertida = data_entrada.strftime('%m-%d-%Y')
     result = {
         'data': datetime.strptime(data, '%m-%d-%Y'),
-        'cotacao_compra': Cotacao().get_cotacao_compra(data)['cotacao'],
-        'cotacao_venda': Cotacao().get_cotacao_venda(data)['cotacao']
+        'cotacao_compra': Cotacao().get_cotacao_compra(data_convertida)['cotacao'],
+        'cotacao_venda': Cotacao().get_cotacao_venda(data_convertida)['cotacao']
     }
     return result
 
@@ -45,9 +47,11 @@ def get_cotacao_busca_dia_util(
 ) -> dict:
     """Retorna a cotação buscando o último dia util anterior a data informada."""
     data = Periodo().padronizar_data(dia, mes, ano)
+    data_entrada = datetime.strptime(data, '%m-%d-%Y')
+    data_convertida = data_entrada.strftime('%m-%d-%Y')
     # Retorna a cotação do último dia útil anterior ao dia
 
-    return Cotacao().get_cotacao_ultimo_dia_util(data)
+    return Cotacao().get_cotacao_ultimo_dia_util(data_convertida)
 
 
 @app.get('/declaracao_dividendos_exterior_individual/')
