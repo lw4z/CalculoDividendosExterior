@@ -1,5 +1,5 @@
 start:
-	uvicorn main:app --reload
+	streamlit run view/-\ ⌂\ Início.py & uvicorn main:app --reload
 
 full_test:
 	pytest -v

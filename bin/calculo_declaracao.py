@@ -30,7 +30,7 @@ class CalculoDeclaracao(object):
             'valor_bruto': f'{recebido_reais:.2f}',
             'valor_imposto': f'{pago_reais:.2f}',
             'valor_liquido': f'{valor_liquido:.2f}',
-            'redimentos_mensagem_exemplo': f'Dividendos recebidos no valor de US$ {valor_bruto_dolar} '
+            'rendimentos_mensagem_exemplo': f'Dividendos recebidos no valor de US$ {valor_bruto_dolar} '
             f'com cotação do dolar R$ {cotacao_real} ',
             'pagamentos_mensagem_exemplo': f'Imposto pago no exterior sobre os dividendos '
             f'no valor de US$ {valor_imposto_dolar} '
@@ -44,6 +44,7 @@ class CalculoDeclaracao(object):
 
     @staticmethod
     def calcular_declaracao_individual(
+            tipo_ativo,
             codigo,
             cotacao,
             valor_bruto,
@@ -53,6 +54,11 @@ class CalculoDeclaracao(object):
         calculo_mensal = CalculoDeclaracao().calcular_declaracao_mensal(
             cotacao, valor_bruto, valor_imposto
         )
+
+        # Definição da mensagem para Stock ou ETF
+        mensagem_ativo = 'do ETF'
+        if tipo_ativo == 'Stock':
+            mensagem_ativo = 'da Stock'
 
         # Dados convertidos para formato monetário
         cotacao_real = str(cotacao).replace('.', ',')
@@ -65,9 +71,9 @@ class CalculoDeclaracao(object):
             'valor_bruto': calculo_mensal['valor_bruto'],
             'valor_imposto': calculo_mensal['valor_imposto'],
             'valor_liquido': calculo_mensal['valor_liquido'],
-            'redimentos_mensagem_exemplo': f'Dividendos recebidos do ETF {codigo} no valor de US$ {valor_bruto_dolar} '
+            'rendimentos_mensagem_exemplo': f'Dividendos recebidos {mensagem_ativo} {codigo} no valor de US$ {valor_bruto_dolar} '
             f'com cotação do dólar R$ {cotacao_real}',
-            'pagamentos_mensagem_exemplo': f'Imposto pago no exterior sobre os dividendos do ETF {codigo} '
+            'pagamentos_mensagem_exemplo': f'Imposto pago no exterior sobre os dividendos {mensagem_ativo} {codigo} '
             f'no valor de US$ {valor_imposto_dolar} '
             f'com cotação do dólar R$ {cotacao_real}',
             'valor_bruto_reais': calculo_mensal['valor_bruto_reais'],
