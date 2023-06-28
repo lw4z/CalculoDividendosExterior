@@ -20,7 +20,11 @@ class Periodo:
             dados: str = '11-15-2020'
         """
         # Retorna o dia 15 do mês anterior
-        return f'{mes-1}-{15}-{ano}'
+        if mes < 10:
+            mes = mes - 1
+            return f'0{mes}-{15}-{ano}'
+        else:
+            return f'{mes}-{15}-{ano}'
 
     @staticmethod
     def padronizar_data(

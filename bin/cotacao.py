@@ -165,7 +165,7 @@ class Cotacao:
             cotacoes = json.load(arquivo_dados)
         data_frame = pd.json_normalize(cotacoes)
 
-        # Procurando os dados de arcodo com a data
+        # Procurando os dados de acordo com a data
         data_result = data_frame.loc[(data_frame['data'] == data)]
 
         # Capturando o valor da cotação de venda
